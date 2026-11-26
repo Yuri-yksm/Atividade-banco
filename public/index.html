@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Grão da Serra — Balcão</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&display=swap" rel="stylesheet">
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="css/estilo.css">
+</head>
+<body>
+  <!-- Navegação lateral -->
+  <nav class="trilho" aria-label="Telas do sistema">
+    <div class="marca">
+      <span class="marca-nome">Grão da Serra</span>
+      <span class="marca-sub">Empório &amp; Café</span>
+    </div>
+    <button class="nav-item ativo" data-tela="novo-pedido">Novo pedido</button>
+    <button class="nav-item" data-tela="cardapio">Cardápio</button>
+    <button class="nav-item" data-tela="pedidos">Pedidos</button>
+    <button class="nav-item" data-tela="gerencia">Gerência</button>
+  </nav>
+
+  <main>
+    <!-- Área fixa para as mensagens do banco (SIGNAL) e confirmações -->
+    <div id="mensagem" class="mensagem" role="status" aria-live="polite" hidden>
+      <span id="mensagem-texto"></span>
+      <button id="mensagem-fechar" class="mensagem-fechar" aria-label="Fechar mensagem">×</button>
+    </div>
+
+    <!-- ============================ NOVO PEDIDO ============================ -->
+    <section id="tela-novo-pedido" class="tela ativa">
+      <header class="tela-topo">
+        <h1>Novo pedido</h1>
+      </header>
+
+      <div class="balcao">
+        <!-- Produtos para adicionar -->
+        <div class="balcao-produtos">
+          <div id="balcao-cardapio" class="lista-cardapio"></div>
+        </div>
+
+        <!-- Comanda do pedido atual -->
+        <aside class="comanda" aria-label="Comanda do pedido">
+          <!-- Antes de abrir -->
+          <div id="comanda-abrir">
+            <h2 class="comanda-titulo">Abrir comanda</h2>
+            <label class="campo">Cliente
+              <select id="sel-cliente"></select>
+            </label>
+            <label class="campo">Atendente
+              <select id="sel-funcionario"></select>
+            </label>
+            <button id="btn-abrir" class="botao botao-mel">Abrir pedido</button>
+
+            <div class="comanda-continuar">
+              <label class="campo">Ou continue um pedido aberto
+                <select id="sel-aberto"></select>
+              </label>
+              <button id="btn-continuar" class="botao botao-linha">Continuar pedido</button>
+            </div>
+          </div>
+
+          <!-- Pedido aberto -->
+          <div id="comanda-pedido" hidden>
+            <div class="comanda-cabeca">
+              <span class="comanda-numero">Pedido <strong id="cmd-numero"></strong></span>
+              <span id="cmd-status" class="selo"></span>
+            </div>
+            <dl class="comanda-dados">
+              <dt>Cliente</dt><dd id="cmd-cliente"></dd>
+              <dt>Atendente</dt><dd id="cmd-atendente"></dd>
+            </dl>
+
+            <ul id="cmd-itens" class="comanda-itens"></ul>
+
+            <div class="comanda-total">
+              <span>Valor bruto</span>
+              <strong id="cmd-bruto"></strong>
+            </div>
+            <div id="cmd-fechamento" class="comanda-fechamento" hidden>
+              <div><span>Desconto fidelidade</span><strong id="cmd-desconto"></strong></div>
+              <div class="comanda-final"><span>Total pago</span><strong id="cmd-final"></strong></div>
+            </div>
+
+            <div class="comanda-acoes">
+              <button id="btn-finalizar" class="botao botao-mel">Finalizar pedido</button>
+              <button id="btn-nova-comanda" class="botao botao-linha">Fechar comanda</button>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ============================== CARDÁPIO ============================= -->
+    <section id="tela-cardapio" class="tela">
+      <header class="tela-topo">
+        <h1>Cardápio</h1>
+        <p class="legenda">
+          <span class="selo selo-repor">Repor</span> estoque baixo
+          <span class="selo selo-esgotado">Esgotado</span> indisponível para venda
+        </p>
+      </header>
+      <div id="cardapio-lista" class="cardapio-colunas"></div>
+    </section>
+
+    <!-- =============================== PEDIDOS ============================= -->
+    <section id="tela-pedidos" class="tela">
+      <header class="tela-topo">
+        <h1>Pedidos</h1>
+        <div class="filtro" role="group" aria-label="Filtrar por status">
+          <button class="filtro-op ativo" data-status="">Todos</button>
+          <button class="filtro-op" data-status="ABERTO">Abertos</button>
+          <button class="filtro-op" data-status="PAGO">Pagos</button>
+          <button class="filtro-op" data-status="CANCELADO">Cancelados</button>
+        </div>
+      </header>
+      <div class="tabela-caixa">
+        <table class="tabela">
+          <thead>
+            <tr>
+              <th>Nº</th><th>Data</th><th>Status</th><th>Cliente</th><th>Atendente</th>
+              <th class="num">Itens</th><th class="num">Valor bruto</th>
+              <th class="num">Desconto</th><th class="num">Valor total</th><th></th>
+            </tr>
+          </thead>
+          <tbody id="pedidos-corpo"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ============================== GERÊNCIA ============================= -->
+    <section id="tela-gerencia" class="tela">
+      <header class="tela-topo">
+        <h1>Gerência</h1>
+      </header>
+
+      <div class="gerencia">
+        <article class="bloco bloco-largo">
+          <h2>Produtos para repor</h2>
+          <div class="tabela-caixa">
+          <table class="tabela">
+            <thead>
+              <tr><th>Produto</th><th>Categoria</th><th class="num">Estoque</th>
+                  <th class="num">Mínimo</th><th class="num">Faltam</th></tr>
+            </thead>
+            <tbody id="repor-corpo"></tbody>
+          </table>
+          </div>
+        </article>
+
+        <article class="bloco">
+          <h2>Vendas por categoria</h2>
+          <p class="nota">Somente pedidos pagos.</p>
+          <div id="vendas-lista" class="vendas"></div>
+        </article>
+
+        <article class="bloco">
+          <h2>Reajustar preços</h2>
+          <form id="form-reajuste" class="form-reajuste">
+            <label class="campo">Categoria
+              <select id="reaj-categoria" required></select>
+            </label>
+            <label class="campo">Percentual (%)
+              <input id="reaj-percentual" type="number" step="0.01" required
+                     placeholder="10 para aumento, -5 para redução">
+            </label>
+            <button class="botao botao-mel" type="submit">Aplicar reajuste</button>
+          </form>
+        </article>
+
+        <article class="bloco bloco-largo">
+          <h2>Histórico de preços</h2>
+          <div class="tabela-caixa">
+            <table class="tabela">
+              <thead>
+                <tr><th>Data</th><th>Produto</th><th class="num">De</th>
+                    <th class="num">Para</th><th>Alterado por</th></tr>
+              </thead>
+              <tbody id="historico-corpo"></tbody>
+            </table>
+          </div>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
